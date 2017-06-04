@@ -30,7 +30,6 @@ The benifits are:
 - Easy to manage multiple database connections for one application.
 
 **Steps:**
-
 - **Pull the official PostgresSQL image**
 `sudo docker pull postgres`
 From its [Dockerfile][3] we know, the data volume is already configured as `VOLUME /var/lib/postgresql/data`. There is no need to configure it again using `docker run -v` command. 
@@ -43,8 +42,8 @@ POSTGRES_USER=<your_user>
 POSTGRES_PASSWORD=<your_pwd>
 ```
  - **Start a PostgreSQL container**:
-Go to the file directory of **env.db**, run:
-`sudo docker run --name pg-db --env-file=env.db -d postgres`
+ Go to the file directory of **env.db**, run:
+ `sudo docker run --name pg-db --env-file=env.db -d postgres`
 
 # **Build Demo App Container**
 - **Update Demo Project**
