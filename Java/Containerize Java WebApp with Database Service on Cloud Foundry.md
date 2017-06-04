@@ -16,10 +16,10 @@ Refer to offical guide - [Get Docker for Ubuntu][2].
 # **Install Cloud Foundry CLI** (Command Line Interface)
 - Add the Cloud Foundry Foundation public key and package repository to your system:
 
-  ``` bash
-  wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
-  echo "deb http://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
-  ```
+``` bash
+wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+echo "deb http://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+```
 - Update your local package index:
 
   `sudo apt-get update`
@@ -48,11 +48,11 @@ The benefits are:
 - **Create your own user and database**
 
   You can configure them via environment variables in an env-file (e.g. ***env.db*** ):
-  ``` properties
-  POSTGRES_DB=<your_db>
-  POSTGRES_USER=<your_user>
-  POSTGRES_PASSWORD=<your_pwd>
-  ```
+``` properties
+POSTGRES_DB=<your_db>
+POSTGRES_USER=<your_user>
+POSTGRES_PASSWORD=<your_pwd>
+```
 
 - **Start a PostgreSQL container**:
 
@@ -64,44 +64,44 @@ The benefits are:
 - **Update Demo Project**
 
   Use Maven Docker Plugin to simply the build steps. In ***pom.xml*** :
-  ``` xml
-  <plugin>
-  	<groupId>com.spotify</groupId>
-  	<artifactId>docker-maven-plugin</artifactId>
-  	<version>0.4.11</version>
-  	<configuration>
-  		<imageName>hbyuan27/demo</imageName>
-  		<dockerDirectory>src/main/resources</dockerDirectory>
-  		<resources>
-  			<resource>
-  				<targetPath>/</targetPath>
-  				<directory>${project.build.directory}</directory>
-                  <include>${project.build.finalName}.jar</include>
-  			</resource>
-  		</resources>
-  	</configuration>
-  </plugin>
-  ```
+``` xml
+<plugin>
+	<groupId>com.spotify</groupId>
+	<artifactId>docker-maven-plugin</artifactId>
+	<version>0.4.11</version>
+	<configuration>
+		<imageName>hbyuan27/demo</imageName>
+		<dockerDirectory>src/main/resources</dockerDirectory>
+		<resources>
+			<resource>
+				<targetPath>/</targetPath>
+				<directory>${project.build.directory}</directory>
+                <include>${project.build.finalName}.jar</include>
+			</resource>
+		</resources>
+	</configuration>
+</plugin>
+```
 
 - **Prepare the Dockerfile**
 
-  ``` bash
-  FROM frolvlad/alpine-oraclejdk8:slim
-  ADD demo.jar app.jar
-  ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar" ]
-  ```
+``` bash
+FROM frolvlad/alpine-oraclejdk8:slim
+ADD demo.jar app.jar
+ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS -Djava.security.egd=file:/dev/./urandom -jar /app.jar" ]
+```
   Put it to the right place according to the configuration field "**dockerDirectory**" of Maven Docker Plugin.
 
 - **Update Database Connection**
 
   Modify the Spring-Boot ***application.properties***
-  ``` properties
-  spring.datasource.url= jdbc:postgresql://${POSTGRES_PORT_5432_TCP_ADDR}:${POSTGRES_PORT_5432_TCP_PORT}/<your_db>
-  spring.datasource.username=<your_user>
-  spring.datasource.password=<your_pwd>
-  spring.datasource.driverClassName=org.postgresql.Driver
-  spring.jpa.hibernate.ddl-auto=create-drop
-  ```
+``` properties
+spring.datasource.url= jdbc:postgresql://${POSTGRES_PORT_5432_TCP_ADDR}:${POSTGRES_PORT_5432_TCP_PORT}/<your_db>
+spring.datasource.username=<your_user>
+spring.datasource.password=<your_pwd>
+spring.datasource.driverClassName=org.postgresql.Driver
+spring.jpa.hibernate.ddl-auto=create-drop
+```
 
 - **Build Your Demo App Image**
 
@@ -141,10 +141,10 @@ cf login
 - **Create a Database Service Instance for Demo App on Cloud Platform**
 
   Find all available database service in marketplace and create an instance:
-  ```
-  cf marketplace
-  cf create-service postgresql v9.4-container demo-pg-servic
-  ```
+```
+cf marketplace
+cf create-service postgresql v9.4-container demo-pg-servic
+```
 
 - **Build Database Connection Between DemoApp & Database Service**
 
@@ -157,87 +157,87 @@ cf login
   When using the **cf create-service** command, the system will provide you a set of environment variables via a JSON object called "**VCAP_SERVICES**".
   You can find parameters from it and build the database connection like:
 
-    ``` java
-    Connection conn = null;
-    JSONObject obj = new JSONObject(System.getenv("VCAP_SERVICES"));
-    JSONArray arr = obj.getJSONArray("postgresql");
-    String dbname = arr.getJSONObject(0).getJSONObject("credentials").getString("dbname");
-    String hostname = arr.getJSONObject(0).getJSONObject("credentials").getString("hostname");
-    String port = arr.getJSONObject(0).getJSONObject("credentials").getString("port");
-    String username = arr.getJSONObject(0).getJSONObject("credentials").getString("username");
-    String password = arr.getJSONObject(0).getJSONObject("credentials").getString("password");
-    String connection_url = "jdbc:postgresql://" + hostname + ":" + port + "/" + dbname;
+  ``` java
+  Connection conn = null;
+  JSONObject obj = new JSONObject(System.getenv("VCAP_SERVICES"));
+  JSONArray arr = obj.getJSONArray("postgresql");
+  String dbname = arr.getJSONObject(0).getJSONObject("credentials").getString("dbname");
+  String hostname = arr.getJSONObject(0).getJSONObject("credentials").getString("hostname");
+  String port = arr.getJSONObject(0).getJSONObject("credentials").getString("port");
+  String username = arr.getJSONObject(0).getJSONObject("credentials").getString("username");
+  String password = arr.getJSONObject(0).getJSONObject("credentials").getString("password");
+  String connection_url = "jdbc:postgresql://" + hostname + ":" + port + "/" + dbname;
 
-    DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
-    dataSource.setUrl(connection_url);
-    dataSource.setUsername(username);
-    dataSource.setPassword(password);
-    conn = dataSource.getConnection();
-    ```
+  DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
+  dataSource.setUrl(connection_url);
+  dataSource.setUsername(username);
+  dataSource.setPassword(password);
+  conn = dataSource.getConnection();
+  ```
   - **Using "Spring Cloud Connectors"**
 
     The connectors help you to parse the JSON object and automatically integrated with Spring Framework. What you need to do is to add below dependencies in you **pom.xml**.
-    ``` xml
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-spring-service-connector</artifactId>
-            <version>1.2.4.RELEASE</version>
-        </dependency>
-        <!-- If you intend to deploy the app on Cloud Foundry, add the following -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-cloudfoundry-connector</artifactId>
-            <version>1.2.4.RELEASE</version>
-        </dependency>
-    </dependencies>
-    ```
+  ``` xml
+  <dependencies>
+      <dependency>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-spring-service-connector</artifactId>
+          <version>1.2.4.RELEASE</version>
+      </dependency>
+      <!-- If you intend to deploy the app on Cloud Foundry, add the following -->
+      <dependency>
+          <groupId>org.springframework.cloud</groupId>
+          <artifactId>spring-cloud-cloudfoundry-connector</artifactId>
+          <version>1.2.4.RELEASE</version>
+      </dependency>
+  </dependencies>
+  ```
 - **Rebuild Demo App Image**
 
   In this tutorials we choose to use "Spring Cloud Connectors" since it is easier and you don't need to re-write you code a lot.
   Create a Spring configuration bean to manage the database:
-  ``` java
-  package cloud.app.demo;
+``` java
+package cloud.app.demo;
 
-  import javax.sql.DataSource;
+import javax.sql.DataSource;
 
-  import org.springframework.cloud.config.java.AbstractCloudConfig;
-  import org.springframework.context.annotation.Bean;
-  import org.springframework.context.annotation.Configuration;
+import org.springframework.cloud.config.java.AbstractCloudConfig;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-  // TODO @Profile("cloud")
-  @Configuration
-  public class CloudConfig extends AbstractCloudConfig {
-  	@Bean
-  	public DataSource dataSource() {
-  		return connectionFactory().dataSource();
-  	}
-  }
-  ```
+// TODO @Profile("cloud")
+@Configuration
+public class CloudConfig extends AbstractCloudConfig {
+	@Bean
+	public DataSource dataSource() {
+		return connectionFactory().dataSource();
+	}
+}
+```
   And update the App.java file to enable it:
-  ``` java
-  @SpringBootApplication
-  public class App extends SpringBootServletInitializer {
+``` java
+@SpringBootApplication
+public class App extends SpringBootServletInitializer {
 
-  	public static void main(String[] args) {
-  		SpringApplication.run(App.class, args);
-  	}
+	public static void main(String[] args) {
+		SpringApplication.run(App.class, args);
+	}
 
-  	@Override
-  	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-  		return builder.sources(App.class).sources(CloudConfig.class);
-  	}
-  }
-  ```
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+		return builder.sources(App.class).sources(CloudConfig.class);
+	}
+}
+```
 
   Now comment out the old database connection setting in **application.properties**
-  ``` properties
-  #spring.datasource.url= jdbc:postgresql://${POSTGRES_PORT_5432_TCP_ADDR}:${POSTGRES_PORT_5432_TCP_PORT}/<your_db>
-  #spring.datasource.username=<your_user>
-  #spring.datasource.password=<your_pwd>
-  #spring.datasource.driverClassName=org.postgresql.Driver
-  spring.jpa.hibernate.ddl-auto=create-drop
-  ```
+``` properties
+#spring.datasource.url= jdbc:postgresql://${POSTGRES_PORT_5432_TCP_ADDR}:${POSTGRES_PORT_5432_TCP_PORT}/<your_db>
+#spring.datasource.username=<your_user>
+#spring.datasource.password=<your_pwd>
+#spring.datasource.driverClassName=org.postgresql.Driver
+spring.jpa.hibernate.ddl-auto=create-drop
+```
   Don't forget to add the "Spring Cloud Connectors" dependencies into your pom.xml
 
   Now, remove the old docker image to save some disk space:
@@ -252,26 +252,26 @@ cf login
 
   Login with your DockerHub account and push the demo app image to your registry:
 
-  ```
-  sudo docker login
-  sudo docker images
-  sudo docker push <hbyuan27/demo>
-  ```
+```
+sudo docker login
+sudo docker images
+sudo docker push <hbyuan27/demo>
+```
 
 - **Deploy Demo App as Docker Container onto Cloud Foundry**
   - Create manifest file for deployment - ***manifest.yml***
 
-    ``` yaml
-    applications:
-     - name: <your_app_name>
-        path: .
-        memory: 1024M
-        instances: 1
-        routes:
-         - route: <your_route.xxx.com>
-        services:
-         - demo-pg-service
-    ```
+  ``` yaml
+  applications:
+   - name: <your_app_name>
+      path: .
+      memory: 1024M
+      instances: 1
+      routes:
+       - route: <your_route.xxx.com>
+      services:
+       - demo-pg-service
+  ```
 
   - Goto the directory of the manifest file, run command:
   
