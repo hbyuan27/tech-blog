@@ -4,7 +4,8 @@
 Tags： Spring-Boot PostgreSQL Cloud-Foundry Docker Micro-Service
 
 ---
-If you are new to Java developement or Ubuntu, here is the guide of [**How To Setup Java IDE on Ubuntu**][1]. It would help you to setup the development environment, with a simple Spring-Boot web app running on it.
+
+If you are new to Java developement or Ubuntu, here is the guide of [How To Setup Java IDE on Ubuntu][1]. It would help you to setup the development environment, with a simple Spring-Boot web app running on it.
 
 In this tutorials, we will move a local Java WebApp and its database instance into seperated containers. And later deploy the containers on Cloud Foundry bind to a PostgreSQL service instance.
 
@@ -97,7 +98,7 @@ Now, open 'http://localhost:8080/hello' and 'http://localhost:8080/history' on y
 ***Optional - Take a Quiz***
 restart you demo container, you will find all the history records are gone. Why? And how to fix it?
 
-# **[GitHub Code - Standalone Docker WebApp][6].**
+# [GitHub Code - Standalone Docker WebApp][6].
 
 
 ----------
@@ -110,10 +111,10 @@ First, Cloud Foundry login:
 
 - **Create a Database Service Instance for Demo App on Cloud Platform**
 Find all available database service in marketplace and create an instance:
-  ```
+```
 cf marketplace
 cf create-service postgresql v9.4-container demo-pg-service
-  ```
+```
 
 - **Build Database Connection Between DemoApp & Database Service**
 Now the database service is up and you need to find a way to build the connection between
@@ -123,7 +124,7 @@ What you can do is to fetch the variables and use them to build the connection.
 There are two ways to implement it:
  - **Using "VCAP_SERVICES"**
   When using the `cf create-service` command, the system will provide you a set of environment variables via a JSON object called "**VCAP_SERVICES**". You can find all the required parameters there and build the database connection like:
-  ```
+```
  Connection conn = null;
  JSONObject obj = new JSONObject(System.getenv("VCAP_SERVICES"));
  JSONArray arr = obj.getJSONArray("postgresql");
@@ -139,10 +140,10 @@ There are two ways to implement it:
  dataSource.setUsername(username);
  dataSource.setPassword(password);
  conn = dataSource.getConnection();
-  ```
+```
   - **Using "Spring Cloud Connectors"**
   it helps you to parse the JSON object and automatically integreted with Spring framework. What you need to do is to add below dependencies in you **pom.xml**.
-  ```
+```
 <dependencies>
     <dependency>
         <groupId>org.springframework.cloud</groupId>
@@ -156,7 +157,7 @@ There are two ways to implement it:
         <version>1.2.4.RELEASE</version>
     </dependency>
 </dependencies>
-  ```
+```
 - **Rebuild Demo App Image**
 In this tutorials we choose to use "Spring Cloud Connectors" since it is easier and you don't need to re-write you code a lot.
 Create a Spring configuration bean to manage the database:
@@ -219,7 +220,7 @@ sudo docker push <hbyuan27/demo>
  - **Deploy Demo App as Docker Container onto Cloud Foundry**
   - Create manifest file for deployment - `manifest.yml`
 
-      ```
+    ```
     applications:
      - name: <your_app_name>
         path: .
@@ -229,7 +230,7 @@ sudo docker push <hbyuan27/demo>
          - route: <your_route.xxx.com>
         services:
          - demo-pg-service
-      ```
+    ```
     - Goto the directory of the manifest file, run command:
     `sudo cf push -o <your_docker_hub_image>`
     - Deploy multiple apps with the same app route, which can be considered as a simple implementation of load balance on Cloud Foundry.
