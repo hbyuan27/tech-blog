@@ -126,7 +126,7 @@ Now, open 'http://localhost:8080/hello' and 'http://localhost:8080/history' on y
 
 Restart you demo container, you will find all the history records are gone. Why? And how to fix it?
 
-#### **[GitHub Code - Standalone Docker WebApp][6]**
+#### [**GitHub Code - Standalone Docker WebApp**][6]
 
 ----------
 
@@ -283,7 +283,7 @@ cf login
 
   Now open access the app through the route: `http://<your_route>/hello`, refresh the page, you will find different jvm names which means the load balance is working now.
 
-#### **[GitHub Code - Docker Based Demo App on Cloud Foundry][7]**
+#### [**GitHub Code - Docker Based Demo App on Cloud Foundry**][7]
 
 
 ----------
