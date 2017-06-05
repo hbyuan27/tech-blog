@@ -294,7 +294,7 @@ cf login
 #### **TODO - Share Stored Data Between Containers on Cloud Foundry**
 
 
-  [1]: tech-blog/Java/Setup%20Ubuntu%20Development%20Environment%20for%20Java%20WebApp.md
+  [1]: Setup%20Ubuntu%20Development%20Environment%20for%20Java%20WebApp.md
   [2]: https://docs.docker.com/engine/installation/linux/ubuntu/
   [3]: https://github.com/docker-library/postgres/blob/master/9.4/Dockerfile
   [4]: https://github.com/docker-library/postgres/blob/master/9.4/docker-entrypoint.sh
